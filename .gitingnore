@@ -1,0 +1,29 @@
+# Arduino IDE files
+*.hex
+*.elf
+*.map
+*.lst
+
+# Build files
+build/
+*.o
+*.a
+
+# Secrets file - NEVER commit this to version control
+secrets.h
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
