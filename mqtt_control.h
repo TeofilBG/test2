@@ -6,45 +6,24 @@
 #include <lvgl.h>
 #include <ui.h>
 
-// MQTT topics for first LED lamp control (ui_Button1)
-extern const char* light_command_topic;
-extern const char* light_state_topic;
-extern const char* brightness_topic;
-extern const char* switch_topic;
-extern const char* brightness_state_topic;
-extern const char* switch_state_topic;
+// Struct holding all MQTT topics and state for a lamp
+struct LampConfig {
+  const char* lightCommandTopic;
+  const char* lightStateTopic;
+  const char* brightnessCommandTopic;
+  const char* switchCommandTopic;
+  const char* brightnessStateTopic;
+  const char* switchStateTopic;
+  int currentBrightness;
+  bool isOn;
+  bool uiUpdateInProgress;
+};
 
-// MQTT topics for IKEA LED strip control (ui_ikea)
-extern const char* ikea_light_command_topic;
-extern const char* ikea_light_state_topic;
-extern const char* ikea_brightness_topic;
-extern const char* ikea_switch_topic;
-extern const char* ikea_brightness_state_topic;
-extern const char* ikea_switch_state_topic;
+// Number of controllable lamps
+constexpr int NUM_LAMPS = 5;
 
-// MQTT topics for svetlo1 LED lamp control (ui_svetlo1)
-extern const char* svetlo1_light_command_topic;
-extern const char* svetlo1_light_state_topic;
-extern const char* svetlo1_brightness_topic;
-extern const char* svetlo1_switch_topic;
-extern const char* svetlo1_brightness_state_topic;
-extern const char* svetlo1_switch_state_topic;
-
-// MQTT topics for svetlo2 LED lamp control (ui_svetlo2)
-extern const char* svetlo2_light_command_topic;
-extern const char* svetlo2_light_state_topic;
-extern const char* svetlo2_brightness_topic;
-extern const char* svetlo2_switch_topic;
-extern const char* svetlo2_brightness_state_topic;
-extern const char* svetlo2_switch_state_topic;
-
-// MQTT topics for svetlo3 LED strip control (ui_svetlo3)
-extern const char* svetlo3_light_command_topic;
-extern const char* svetlo3_light_state_topic;
-extern const char* svetlo3_brightness_topic;
-extern const char* svetlo3_switch_topic;
-extern const char* svetlo3_brightness_state_topic;
-extern const char* svetlo3_switch_state_topic;
+// Array of lamp configurations
+extern LampConfig lampConfigs[NUM_LAMPS];
 
 // MQTT topics for Stan AC automation button (ui_acbutton)
 extern const char* stan_ac_on_automation_topic;
@@ -76,27 +55,8 @@ extern const char* HostName;
 extern WiFiClient espClient;
 extern PubSubClient MQTTclient;
 
-// State variables for all 5 lamps
-extern int currentBrightness;
-extern bool lampIsOn;
-extern bool uiUpdateInProgress;
+// Global interaction state
 extern bool userInteracting;
-
-extern int ikeaCurrentBrightness;
-extern bool ikeaLampIsOn;
-extern bool ikeaUiUpdateInProgress;
-
-extern int svetlo1CurrentBrightness;
-extern bool svetlo1LampIsOn;
-extern bool svetlo1UiUpdateInProgress;
-
-extern int svetlo2CurrentBrightness;
-extern bool svetlo2LampIsOn;
-extern bool svetlo2UiUpdateInProgress;
-
-extern int svetlo3CurrentBrightness;
-extern bool svetlo3LampIsOn;
-extern bool svetlo3UiUpdateInProgress;
 
 // Stan AC state tracking
 extern bool stanAcIsOn;
@@ -125,40 +85,12 @@ void initMQTT();
 void connectToMQTT();
 void mqttCallback(char* topic, byte* payload, unsigned int length);
 
-// Main lamp functions
-void setBrightness(int brightness);
-void turnLampOn();
-void turnLampOff();
-void toggleLamp();
-void updateUIFromMQTT();
-
-// IKEA lamp functions
-void setIkeaBrightness(int brightness);
-void turnIkeaLampOn();
-void turnIkeaLampOff();
-void toggleIkeaLamp();
-void updateIkeaUIFromMQTT();
-
-// Svetlo1 lamp functions
-void setSvetlo1Brightness(int brightness);
-void turnSvetlo1LampOn();
-void turnSvetlo1LampOff();
-void toggleSvetlo1Lamp();
-void updateSvetlo1UIFromMQTT();
-
-// Svetlo2 lamp functions
-void setSvetlo2Brightness(int brightness);
-void turnSvetlo2LampOn();
-void turnSvetlo2LampOff();
-void toggleSvetlo2Lamp();
-void updateSvetlo2UIFromMQTT();
-
-// Svetlo3 lamp functions
-void setSvetlo3Brightness(int brightness);
-void turnSvetlo3LampOn();
-void turnSvetlo3LampOff();
-void toggleSvetlo3Lamp();
-void updateSvetlo3UIFromMQTT();
+// Generic lamp control functions
+void setLampBrightness(LampConfig& lamp, int brightness);
+void turnLampOn(LampConfig& lamp);
+void turnLampOff(LampConfig& lamp);
+void toggleLamp(LampConfig& lamp);
+void updateLampUIFromMQTT(int index);
 
 // Stan AC Automation functions
 void triggerStanACOn();
