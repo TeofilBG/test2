@@ -3,45 +3,65 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-// MQTT topics for first LED lamp control (ui_Button1)
-const char* light_command_topic = "bedroom/led_lamp/light/led_lamp/command";
-const char* light_state_topic = "bedroom/led_lamp/light/led_lamp/state";
-const char* brightness_topic = "bedroom/led_lamp/number/led_brightness_mqtt/command";
-const char* switch_topic = "bedroom/led_lamp/switch/led_lamp_mqtt_control/command";
-const char* brightness_state_topic = "bedroom/led_lamp/number/led_brightness_mqtt/state";
-const char* switch_state_topic = "bedroom/led_lamp/switch/led_lamp_mqtt_control/state";
+// Configuration for each controllable lamp
+LampConfig lampConfigs[NUM_LAMPS] = {
+  {
+    "bedroom/led_lamp/light/led_lamp/command",
+    "bedroom/led_lamp/light/led_lamp/state",
+    "bedroom/led_lamp/number/led_brightness_mqtt/command",
+    "bedroom/led_lamp/switch/led_lamp_mqtt_control/command",
+    "bedroom/led_lamp/number/led_brightness_mqtt/state",
+    "bedroom/led_lamp/switch/led_lamp_mqtt_control/state",
+    50,
+    false,
+    false
+  },
+  {
+    "bedroom/lampa12vled2_12v_led_strip/light/12v_led_strip/command",
+    "bedroom/lampa12vled2_12v_led_strip/light/12v_led_strip/state",
+    "bedroom/lampa12vled2_12v_led_strip/number/command",
+    "bedroom/lampa12vled2_12v_led_strip/switch/command",
+    "bedroom/lampa12vled2_12v_led_strip/number/state",
+    "bedroom/lampa12vled2_12v_led_strip/switch/state",
+    50,
+    false,
+    false
+  },
+  {
+    "light/led_lampa2_led_lamp/light/led_lamp/command",
+    "light/led_lampa2_led_lamp/light/led_lamp/state",
+    "light/led_lampa2_led_lamp/number/led_brightness_mqtt/command",
+    "light/led_lampa2_led_lamp/switch/led_lamp_mqtt_control/command",
+    "light/led_lampa2_led_lamp/number/led_brightness_mqtt/state",
+    "light/led_lampa2_led_lamp/switch/led_lamp_mqtt_control/state",
+    50,
+    false,
+    false
+  },
+  {
+    "light/led_lampa3_led_lamp/light/led_lamp/command",
+    "light/led_lampa3_led_lamp/light/led_lamp/state",
+    "light/led_lampa3_led_lamp/number/led_brightness_mqtt/command",
+    "light/led_lampa3_led_lamp/switch/led_lamp_mqtt_control/command",
+    "light/led_lampa3_led_lamp/number/led_brightness_mqtt/state",
+    "light/led_lampa3_led_lamp/switch/led_lamp_mqtt_control/state",
+    50,
+    false,
+    false
+  },
+  {
+    "bedroom/lampa12vled_12v_led_strip/light/12v_led_strip/command",
+    "bedroom/lampa12vled_12v_led_strip/light/12v_led_strip/state",
+    "bedroom/lampa12vled_12v_led_strip/number/command",
+    "bedroom/lampa12vled_12v_led_strip/switch/command",
+    "bedroom/lampa12vled_12v_led_strip/number/state",
+    "bedroom/lampa12vled_12v_led_strip/switch/state",
+    50,
+    false,
+    false
+  }
+};
 
-// MQTT topics for IKEA LED strip control (ui_ikea)
-const char* ikea_light_command_topic = "bedroom/lampa12vled2_12v_led_strip/light/12v_led_strip/command";
-const char* ikea_light_state_topic = "bedroom/lampa12vled2_12v_led_strip/light/12v_led_strip/state";
-const char* ikea_brightness_topic = "bedroom/lampa12vled2_12v_led_strip/number/command";
-const char* ikea_switch_topic = "bedroom/lampa12vled2_12v_led_strip/switch/command";
-const char* ikea_brightness_state_topic = "bedroom/lampa12vled2_12v_led_strip/number/state";
-const char* ikea_switch_state_topic = "bedroom/lampa12vled2_12v_led_strip/switch/state";
-
-// MQTT topics for svetlo1 LED lamp control (ui_svetlo1)
-const char* svetlo1_light_command_topic = "light/led_lampa2_led_lamp/light/led_lamp/command";
-const char* svetlo1_light_state_topic = "light/led_lampa2_led_lamp/light/led_lamp/state";
-const char* svetlo1_brightness_topic = "light/led_lampa2_led_lamp/number/led_brightness_mqtt/command";
-const char* svetlo1_switch_topic = "light/led_lampa2_led_lamp/switch/led_lamp_mqtt_control/command";
-const char* svetlo1_brightness_state_topic = "light/led_lampa2_led_lamp/number/led_brightness_mqtt/state";
-const char* svetlo1_switch_state_topic = "light/led_lampa2_led_lamp/switch/led_lamp_mqtt_control/state";
-
-// MQTT topics for svetlo2 LED lamp control (ui_svetlo2)
-const char* svetlo2_light_command_topic = "light/led_lampa3_led_lamp/light/led_lamp/command";
-const char* svetlo2_light_state_topic = "light/led_lampa3_led_lamp/light/led_lamp/state";
-const char* svetlo2_brightness_topic = "light/led_lampa3_led_lamp/number/led_brightness_mqtt/command";
-const char* svetlo2_switch_topic = "light/led_lampa3_led_lamp/switch/led_lamp_mqtt_control/command";
-const char* svetlo2_brightness_state_topic = "light/led_lampa3_led_lamp/number/led_brightness_mqtt/state";
-const char* svetlo2_switch_state_topic = "light/led_lampa3_led_lamp/switch/led_lamp_mqtt_control/state";
-
-// MQTT topics for svetlo3 LED strip control (ui_svetlo3)
-const char* svetlo3_light_command_topic = "bedroom/lampa12vled_12v_led_strip/light/12v_led_strip/command";
-const char* svetlo3_light_state_topic = "bedroom/lampa12vled_12v_led_strip/light/12v_led_strip/state";
-const char* svetlo3_brightness_topic = "bedroom/lampa12vled_12v_led_strip/number/command";
-const char* svetlo3_switch_topic = "bedroom/lampa12vled_12v_led_strip/switch/command";
-const char* svetlo3_brightness_state_topic = "bedroom/lampa12vled_12v_led_strip/number/state";
-const char* svetlo3_switch_state_topic = "bedroom/lampa12vled_12v_led_strip/switch/state";
 
 // MQTT topics for Stan AC automation button (ui_acbutton)
 const char* stan_ac_on_automation_topic = "homeassistant/automation/stan_ac_on/trigger";
@@ -73,31 +93,8 @@ const char* HostName = DEVICE_HOSTNAME;
 WiFiClient espClient;
 PubSubClient MQTTclient(espClient);
 
-// Control variables for first lamp (ui_Button1)
-int currentBrightness = 50;
-bool lampIsOn = false;
-bool uiUpdateInProgress = false;
+// Global user interaction flag
 bool userInteracting = false;
-
-// Control variables for IKEA lamp (ui_ikea)
-int ikeaCurrentBrightness = 50;
-bool ikeaLampIsOn = false;
-bool ikeaUiUpdateInProgress = false;
-
-// Control variables for svetlo1 lamp (ui_svetlo1)
-int svetlo1CurrentBrightness = 50;
-bool svetlo1LampIsOn = false;
-bool svetlo1UiUpdateInProgress = false;
-
-// Control variables for svetlo2 lamp (ui_svetlo2)
-int svetlo2CurrentBrightness = 50;
-bool svetlo2LampIsOn = false;
-bool svetlo2UiUpdateInProgress = false;
-
-// Control variables for svetlo3 lamp (ui_svetlo3)
-int svetlo3CurrentBrightness = 50;
-bool svetlo3LampIsOn = false;
-bool svetlo3UiUpdateInProgress = false;
 
 // Stan AC state tracking
 bool stanAcIsOn = false;
@@ -142,35 +139,13 @@ void connectToMQTT() {
     if (MQTTclient.connect(HostName, MQTTuser, MQTTpwd)) {
       Serial.println("MQTT connected successfully!");
       
-      // Subscribe to state topics for first lamp
-      MQTTclient.subscribe(light_state_topic);
-      MQTTclient.subscribe(brightness_state_topic);
-      MQTTclient.subscribe(switch_state_topic);
-      Serial.println("Subscribed to first lamp state topics");
-      
-      // Subscribe to state topics for IKEA lamp
-      MQTTclient.subscribe(ikea_light_state_topic);
-      MQTTclient.subscribe(ikea_brightness_state_topic);
-      MQTTclient.subscribe(ikea_switch_state_topic);
-      Serial.println("Subscribed to IKEA lamp state topics");
-      
-      // Subscribe to state topics for svetlo1 lamp
-      MQTTclient.subscribe(svetlo1_light_state_topic);
-      MQTTclient.subscribe(svetlo1_brightness_state_topic);
-      MQTTclient.subscribe(svetlo1_switch_state_topic);
-      Serial.println("Subscribed to svetlo1 lamp state topics");
-      
-      // Subscribe to state topics for svetlo2 lamp
-      MQTTclient.subscribe(svetlo2_light_state_topic);
-      MQTTclient.subscribe(svetlo2_brightness_state_topic);
-      MQTTclient.subscribe(svetlo2_switch_state_topic);
-      Serial.println("Subscribed to svetlo2 lamp state topics");
-      
-      // Subscribe to state topics for svetlo3 lamp
-      MQTTclient.subscribe(svetlo3_light_state_topic);
-      MQTTclient.subscribe(svetlo3_brightness_state_topic);
-      MQTTclient.subscribe(svetlo3_switch_state_topic);
-      Serial.println("Subscribed to svetlo3 lamp state topics");
+      // Subscribe to state topics for all lamps
+      for (int i = 0; i < NUM_LAMPS; ++i) {
+        MQTTclient.subscribe(lampConfigs[i].lightStateTopic);
+        MQTTclient.subscribe(lampConfigs[i].brightnessStateTopic);
+        MQTTclient.subscribe(lampConfigs[i].switchStateTopic);
+      }
+      Serial.println("Subscribed to lamp state topics");
       
       // Subscribe to AC automation status topics (both Stan and Lab use same topic, different payloads)
       MQTTclient.subscribe(stan_ac_status_topic);  // Same as lab_ac_status_topic
@@ -199,149 +174,33 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print(topic);
   Serial.print(" | Message: ");
   Serial.println(message);
-  
-  // Handle main light state updates (ui_Button1)
-  if (String(topic) == light_state_topic) {
-    if (message.indexOf("\"state\":\"ON\"") > -1) {
-      lampIsOn = true;
-      Serial.println("Main Lamp state: ON");
-    } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
-      lampIsOn = false;
-      Serial.println("Main Lamp state: OFF");
+
+  // Check lamp topics
+  for (int i = 0; i < NUM_LAMPS; ++i) {
+    LampConfig &lamp = lampConfigs[i];
+    if (String(topic) == lamp.lightStateTopic) {
+      if (message.indexOf("\"state\":\"ON\"") > -1) {
+        lamp.isOn = true;
+      } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
+        lamp.isOn = false;
+      }
+
+      int brightnessStart = message.indexOf("\"brightness\":") + 13;
+      int brightnessEnd = message.indexOf(",", brightnessStart);
+      if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
+      if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
+        String brightnessStr = message.substring(brightnessStart, brightnessEnd);
+        int brightness = brightnessStr.toInt();
+        lamp.currentBrightness = map(brightness, 1, 255, 1, 100);
+      }
+
+      updateLampUIFromMQTT(i);
+      return;
     }
-    
-    int brightnessStart = message.indexOf("\"brightness\":") + 13;
-    int brightnessEnd = message.indexOf(",", brightnessStart);
-    if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
-    
-    if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
-      String brightnessStr = message.substring(brightnessStart, brightnessEnd);
-      int brightness = brightnessStr.toInt();
-      currentBrightness = map(brightness, 1, 255, 1, 100);
-      Serial.print("Main Lamp brightness: ");
-      Serial.print(brightness);
-      Serial.print(" (");
-      Serial.print(currentBrightness);
-      Serial.println("%)");
-    }
-    
-    updateUIFromMQTT();
   }
-  
-  // Handle IKEA lamp state updates (ui_ikea)
-  else if (String(topic) == ikea_light_state_topic) {
-    if (message.indexOf("\"state\":\"ON\"") > -1) {
-      ikeaLampIsOn = true;
-      Serial.println("IKEA Lamp state: ON");
-    } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
-      ikeaLampIsOn = false;
-      Serial.println("IKEA Lamp state: OFF");
-    }
-    
-    int brightnessStart = message.indexOf("\"brightness\":") + 13;
-    int brightnessEnd = message.indexOf(",", brightnessStart);
-    if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
-    
-    if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
-      String brightnessStr = message.substring(brightnessStart, brightnessEnd);
-      int brightness = brightnessStr.toInt();
-      ikeaCurrentBrightness = map(brightness, 1, 255, 1, 100);
-      Serial.print("IKEA Lamp brightness: ");
-      Serial.print(brightness);
-      Serial.print(" (");
-      Serial.print(ikeaCurrentBrightness);
-      Serial.println("%)");
-    }
-    
-    updateIkeaUIFromMQTT();
-  }
-  
-  // Handle svetlo1 lamp state updates (ui_svetlo1)
-  else if (String(topic) == svetlo1_light_state_topic) {
-    if (message.indexOf("\"state\":\"ON\"") > -1) {
-      svetlo1LampIsOn = true;
-      Serial.println("Svetlo1 Lamp state: ON");
-    } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
-      svetlo1LampIsOn = false;
-      Serial.println("Svetlo1 Lamp state: OFF");
-    }
-    
-    int brightnessStart = message.indexOf("\"brightness\":") + 13;
-    int brightnessEnd = message.indexOf(",", brightnessStart);
-    if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
-    
-    if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
-      String brightnessStr = message.substring(brightnessStart, brightnessEnd);
-      int brightness = brightnessStr.toInt();
-      svetlo1CurrentBrightness = map(brightness, 1, 255, 1, 100);
-      Serial.print("Svetlo1 Lamp brightness: ");
-      Serial.print(brightness);
-      Serial.print(" (");
-      Serial.print(svetlo1CurrentBrightness);
-      Serial.println("%)");
-    }
-    
-    updateSvetlo1UIFromMQTT();
-  }
-  
-  // Handle svetlo2 lamp state updates (ui_svetlo2)
-  else if (String(topic) == svetlo2_light_state_topic) {
-    if (message.indexOf("\"state\":\"ON\"") > -1) {
-      svetlo2LampIsOn = true;
-      Serial.println("Svetlo2 Lamp state: ON");
-    } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
-      svetlo2LampIsOn = false;
-      Serial.println("Svetlo2 Lamp state: OFF");
-    }
-    
-    int brightnessStart = message.indexOf("\"brightness\":") + 13;
-    int brightnessEnd = message.indexOf(",", brightnessStart);
-    if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
-    
-    if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
-      String brightnessStr = message.substring(brightnessStart, brightnessEnd);
-      int brightness = brightnessStr.toInt();
-      svetlo2CurrentBrightness = map(brightness, 1, 255, 1, 100);
-      Serial.print("Svetlo2 Lamp brightness: ");
-      Serial.print(brightness);
-      Serial.print(" (");
-      Serial.print(svetlo2CurrentBrightness);
-      Serial.println("%)");
-    }
-    
-    updateSvetlo2UIFromMQTT();
-  }
-  
-  // Handle svetlo3 lamp state updates (ui_svetlo3)
-  else if (String(topic) == svetlo3_light_state_topic) {
-    if (message.indexOf("\"state\":\"ON\"") > -1) {
-      svetlo3LampIsOn = true;
-      Serial.println("Svetlo3 Lamp state: ON");
-    } else if (message.indexOf("\"state\":\"OFF\"") > -1) {
-      svetlo3LampIsOn = false;
-      Serial.println("Svetlo3 Lamp state: OFF");
-    }
-    
-    int brightnessStart = message.indexOf("\"brightness\":") + 13;
-    int brightnessEnd = message.indexOf(",", brightnessStart);
-    if (brightnessEnd == -1) brightnessEnd = message.indexOf("}", brightnessStart);
-    
-    if (brightnessStart > 12 && brightnessEnd > brightnessStart) {
-      String brightnessStr = message.substring(brightnessStart, brightnessEnd);
-      int brightness = brightnessStr.toInt();
-      svetlo3CurrentBrightness = map(brightness, 1, 255, 1, 100);
-      Serial.print("Svetlo3 Lamp brightness: ");
-      Serial.print(brightness);
-      Serial.print(" (");
-      Serial.print(svetlo3CurrentBrightness);
-      Serial.println("%)");
-    }
-    
-    updateSvetlo3UIFromMQTT();
-  }
-  
+
   // Handle AC automation status updates (both Stan and Lab AC use same topic)
-  else if (String(topic) == stan_ac_status_topic) {  // Same as lab_ac_status_topic
+  if (String(topic) == stan_ac_status_topic) {  // Same as lab_ac_status_topic
     if (message == "stan_ac_on_executed") {
       Serial.println("✅ Stan AC Automation CONFIRMED: stan_ac_on_executed - Stan AC is now ON!");
       stanAcIsOn = true;
@@ -370,170 +229,37 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 }
 
 // Update UI elements based on MQTT feedback for main lamp
-void updateUIFromMQTT() {
+void updateLampUIFromMQTT(int index) {
+  if (index < 0 || index >= NUM_LAMPS) return;
+  LampConfig &lamp = lampConfigs[index];
+
   unsigned long currentTime = millis();
-  
   if (userInteracting || (currentTime - lastUserInteraction < userInteractionTimeout)) {
-    Serial.println("Skipping main lamp UI update - user is interacting");
     return;
   }
-  
-  if (uiUpdateInProgress) return;
-  
-  uiUpdateInProgress = true;
-  
-  // Update arc if it's currently controlling this lamp
-  if (ui_Arc1 != NULL && lastSelectedLamp == 1) {
-    int currentArcValue = lv_arc_get_value(ui_Arc1);
-    if (abs(currentArcValue - currentBrightness) > 2) {
-      Serial.print("Updating arc from MQTT (Main Lamp): ");
-      Serial.print(currentArcValue);
-      Serial.print(" -> ");
-      Serial.println(currentBrightness);
-      lv_arc_set_value(ui_Arc1, currentBrightness);
-    }
-  }
-  
-  // Always update visual state based on actual ON/OFF status
-  if (uic_Button1 != NULL) {
-    if (lampIsOn) {
-      lv_imgbtn_set_state(uic_Button1, LV_IMGBTN_STATE_PRESSED);
-      Serial.println("Main Lamp Image Button visual state: ON (pressed state)");
-    } else {
-      lv_imgbtn_set_state(uic_Button1, LV_IMGBTN_STATE_RELEASED);
-      Serial.println("Main Lamp Image Button visual state: OFF (released state)");
-    }
-  }
-  
-  uiUpdateInProgress = false;
-}
 
-// Update UI elements based on MQTT feedback for IKEA lamp
-void updateIkeaUIFromMQTT() {
-  if (ikeaUiUpdateInProgress) return;
-  
-  ikeaUiUpdateInProgress = true;
-  
-  // Update arc if it's currently controlling this lamp
-  if (ui_Arc1 != NULL && lastSelectedLamp == 2) {
-    int currentArcValue = lv_arc_get_value(ui_Arc1);
-    if (abs(currentArcValue - ikeaCurrentBrightness) > 2) {
-      Serial.print("Updating arc from MQTT (IKEA Lamp): ");
-      Serial.print(currentArcValue);
-      Serial.print(" -> ");
-      Serial.println(ikeaCurrentBrightness);
-      lv_arc_set_value(ui_Arc1, ikeaCurrentBrightness);
-    }
-  }
-  
-  // Always update visual state based on actual ON/OFF status
-  if (ui_ikea != NULL) {
-    if (ikeaLampIsOn) {
-      lv_imgbtn_set_state(ui_ikea, LV_IMGBTN_STATE_PRESSED);
-      Serial.println("IKEA Lamp Image Button visual state: ON (pressed state)");
-    } else {
-      lv_imgbtn_set_state(ui_ikea, LV_IMGBTN_STATE_RELEASED);
-      Serial.println("IKEA Lamp Image Button visual state: OFF (released state)");
-    }
-  }
-  
-  ikeaUiUpdateInProgress = false;
-}
+  if (lamp.uiUpdateInProgress) return;
+  lamp.uiUpdateInProgress = true;
 
-// Update UI elements based on MQTT feedback for svetlo1 lamp
-void updateSvetlo1UIFromMQTT() {
-  if (svetlo1UiUpdateInProgress) return;
-  
-  svetlo1UiUpdateInProgress = true;
-  
   // Update arc if it's currently controlling this lamp
-  if (ui_Arc1 != NULL && lastSelectedLamp == 3) {
+  if (ui_Arc1 != NULL && lastSelectedLamp == index + 1) {
     int currentArcValue = lv_arc_get_value(ui_Arc1);
-    if (abs(currentArcValue - svetlo1CurrentBrightness) > 2) {
-      Serial.print("Updating arc from MQTT (Svetlo1 Lamp): ");
-      Serial.print(currentArcValue);
-      Serial.print(" -> ");
-      Serial.println(svetlo1CurrentBrightness);
-      lv_arc_set_value(ui_Arc1, svetlo1CurrentBrightness);
+    if (abs(currentArcValue - lamp.currentBrightness) > 2) {
+      lv_arc_set_value(ui_Arc1, lamp.currentBrightness);
     }
   }
-  
-  // Always update visual state based on actual ON/OFF status
-  if (ui_svetlo1 != NULL) {
-    if (svetlo1LampIsOn) {
-      lv_imgbtn_set_state(ui_svetlo1, LV_IMGBTN_STATE_PRESSED);
-      Serial.println("Svetlo1 Lamp Image Button visual state: ON (pressed state)");
-    } else {
-      lv_imgbtn_set_state(ui_svetlo1, LV_IMGBTN_STATE_RELEASED);
-      Serial.println("Svetlo1 Lamp Image Button visual state: OFF (released state)");
-    }
-  }
-  
-  svetlo1UiUpdateInProgress = false;
-}
 
-// Update UI elements based on MQTT feedback for svetlo2 lamp
-void updateSvetlo2UIFromMQTT() {
-  if (svetlo2UiUpdateInProgress) return;
-  
-  svetlo2UiUpdateInProgress = true;
-  
-  // Update arc if it's currently controlling this lamp
-  if (ui_Arc1 != NULL && lastSelectedLamp == 4) {
-    int currentArcValue = lv_arc_get_value(ui_Arc1);
-    if (abs(currentArcValue - svetlo2CurrentBrightness) > 2) {
-      Serial.print("Updating arc from MQTT (Svetlo2 Lamp): ");
-      Serial.print(currentArcValue);
-      Serial.print(" -> ");
-      Serial.println(svetlo2CurrentBrightness);
-      lv_arc_set_value(ui_Arc1, svetlo2CurrentBrightness);
-    }
-  }
-  
-  // Always update visual state based on actual ON/OFF status
-  if (ui_svetlo2 != NULL) {
-    if (svetlo2LampIsOn) {
-      lv_imgbtn_set_state(ui_svetlo2, LV_IMGBTN_STATE_PRESSED);
-      Serial.println("Svetlo2 Lamp Image Button visual state: ON (pressed state)");
+  // Update corresponding button visual state
+  lv_obj_t* buttons[NUM_LAMPS] = {uic_Button1, ui_ikea, ui_svetlo1, ui_svetlo2, ui_svetlo3};
+  if (buttons[index] != NULL) {
+    if (lamp.isOn) {
+      lv_imgbtn_set_state(buttons[index], LV_IMGBTN_STATE_PRESSED);
     } else {
-      lv_imgbtn_set_state(ui_svetlo2, LV_IMGBTN_STATE_RELEASED);
-      Serial.println("Svetlo2 Lamp Image Button visual state: OFF (released state)");
+      lv_imgbtn_set_state(buttons[index], LV_IMGBTN_STATE_RELEASED);
     }
   }
-  
-  svetlo2UiUpdateInProgress = false;
-}
 
-// Update UI elements based on MQTT feedback for svetlo3 lamp
-void updateSvetlo3UIFromMQTT() {
-  if (svetlo3UiUpdateInProgress) return;
-  
-  svetlo3UiUpdateInProgress = true;
-  
-  // Update arc if it's currently controlling this lamp
-  if (ui_Arc1 != NULL && lastSelectedLamp == 5) {
-    int currentArcValue = lv_arc_get_value(ui_Arc1);
-    if (abs(currentArcValue - svetlo3CurrentBrightness) > 2) {
-      Serial.print("Updating arc from MQTT (Svetlo3 Lamp): ");
-      Serial.print(currentArcValue);
-      Serial.print(" -> ");
-      Serial.println(svetlo3CurrentBrightness);
-      lv_arc_set_value(ui_Arc1, svetlo3CurrentBrightness);
-    }
-  }
-  
-  // Always update visual state based on actual ON/OFF status
-  if (ui_svetlo3 != NULL) {
-    if (svetlo3LampIsOn) {
-      lv_imgbtn_set_state(ui_svetlo3, LV_IMGBTN_STATE_PRESSED);
-      Serial.println("Svetlo3 Lamp Image Button visual state: ON (pressed state)");
-    } else {
-      lv_imgbtn_set_state(ui_svetlo3, LV_IMGBTN_STATE_RELEASED);
-      Serial.println("Svetlo3 Lamp Image Button visual state: OFF (released state)");
-    }
-  }
-  
-  svetlo3UiUpdateInProgress = false;
+  lamp.uiUpdateInProgress = false;
 }
 
 // Update UI elements based on MQTT feedback for Stan AC automation
@@ -618,273 +344,46 @@ void updateSvaSvetlaUIFromMQTT() {
   svaSvetlaUiUpdateInProgress = false;
 }
 
-// LED control functions for main lamp
-void setBrightness(int brightness) {
-  if (!lampIsOn) {
-    turnLampOn();
+// Generic lamp control functions
+void setLampBrightness(LampConfig& lamp, int brightness) {
+  if (!lamp.isOn) {
+    turnLampOn(lamp);
     delay(100);
   }
-  
   int haBrightness = map(brightness, 1, 100, 1, 255);
   String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(haBrightness) + "}";
-  
-  if (MQTTclient.publish(light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Main Lamp brightness set to: ");
-    Serial.print(brightness);
-    Serial.println("%");
-  } else {
-    Serial.println("Failed to set main lamp brightness");
+  if (!MQTTclient.publish(lamp.lightCommandTopic, jsonPayload.c_str())) {
+    Serial.println("Failed to set lamp brightness");
   }
 }
 
-void turnLampOn() {
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(currentBrightness, 1, 100, 1, 255)) + "}";
-  if (MQTTclient.publish(light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Turned main LED lamp ON at ");
-    Serial.print(currentBrightness);
-    Serial.println("% brightness");
-    lampIsOn = true;
+void turnLampOn(LampConfig& lamp) {
+  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(lamp.currentBrightness, 1, 100, 1, 255)) + "}";
+  if (MQTTclient.publish(lamp.lightCommandTopic, jsonPayload.c_str())) {
+    lamp.isOn = true;
   } else {
-    Serial.println("Failed to turn main lamp ON");
+    Serial.println("Failed to turn lamp ON");
   }
 }
 
-void turnLampOff() {
+void turnLampOff(LampConfig& lamp) {
   String jsonPayload = "{\"state\":\"OFF\"}";
-  if (MQTTclient.publish(light_command_topic, jsonPayload.c_str())) {
-    Serial.println("Turned main LED lamp OFF");
-    lampIsOn = false;
+  if (MQTTclient.publish(lamp.lightCommandTopic, jsonPayload.c_str())) {
+    lamp.isOn = false;
   } else {
-    Serial.println("Failed to turn main lamp OFF");
+    Serial.println("Failed to turn lamp OFF");
   }
 }
 
-void toggleLamp() {
+void toggleLamp(LampConfig& lamp) {
   if (!MQTTclient.connected()) {
-    Serial.println("MQTT not connected - cannot toggle main lamp");
+    Serial.println("MQTT not connected - cannot toggle lamp");
     return;
   }
-  
-  if (lampIsOn) {
-    turnLampOff();
+  if (lamp.isOn) {
+    turnLampOff(lamp);
   } else {
-    turnLampOn();
-  }
-}
-
-// LED control functions for IKEA lamp
-void setIkeaBrightness(int brightness) {
-  if (!ikeaLampIsOn) {
-    turnIkeaLampOn();
-    delay(100);
-  }
-  
-  int haBrightness = map(brightness, 1, 100, 1, 255);
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(haBrightness) + "}";
-  
-  if (MQTTclient.publish(ikea_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("IKEA Lamp brightness set to: ");
-    Serial.print(brightness);
-    Serial.println("%");
-  } else {
-    Serial.println("Failed to set IKEA lamp brightness");
-  }
-}
-
-void turnIkeaLampOn() {
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(ikeaCurrentBrightness, 1, 100, 1, 255)) + "}";
-  if (MQTTclient.publish(ikea_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Turned IKEA LED lamp ON at ");
-    Serial.print(ikeaCurrentBrightness);
-    Serial.println("% brightness");
-    ikeaLampIsOn = true;
-  } else {
-    Serial.println("Failed to turn IKEA lamp ON");
-  }
-}
-
-void turnIkeaLampOff() {
-  String jsonPayload = "{\"state\":\"OFF\"}";
-  if (MQTTclient.publish(ikea_light_command_topic, jsonPayload.c_str())) {
-    Serial.println("Turned IKEA LED lamp OFF");
-    ikeaLampIsOn = false;
-  } else {
-    Serial.println("Failed to turn IKEA lamp OFF");
-  }
-}
-
-void toggleIkeaLamp() {
-  if (!MQTTclient.connected()) {
-    Serial.println("MQTT not connected - cannot toggle IKEA lamp");
-    return;
-  }
-  
-  if (ikeaLampIsOn) {
-    turnIkeaLampOff();
-  } else {
-    turnIkeaLampOn();
-  }
-}
-
-// LED control functions for svetlo1 lamp
-void setSvetlo1Brightness(int brightness) {
-  if (!svetlo1LampIsOn) {
-    turnSvetlo1LampOn();
-    delay(100);
-  }
-  
-  int haBrightness = map(brightness, 1, 100, 1, 255);
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(haBrightness) + "}";
-  
-  if (MQTTclient.publish(svetlo1_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Svetlo1 Lamp brightness set to: ");
-    Serial.print(brightness);
-    Serial.println("%");
-  } else {
-    Serial.println("Failed to set svetlo1 lamp brightness");
-  }
-}
-
-void turnSvetlo1LampOn() {
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(svetlo1CurrentBrightness, 1, 100, 1, 255)) + "}";
-  if (MQTTclient.publish(svetlo1_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Turned Svetlo1 LED lamp ON at ");
-    Serial.print(svetlo1CurrentBrightness);
-    Serial.println("% brightness");
-    svetlo1LampIsOn = true;
-  } else {
-    Serial.println("Failed to turn svetlo1 lamp ON");
-  }
-}
-
-void turnSvetlo1LampOff() {
-  String jsonPayload = "{\"state\":\"OFF\"}";
-  if (MQTTclient.publish(svetlo1_light_command_topic, jsonPayload.c_str())) {
-    Serial.println("Turned Svetlo1 LED lamp OFF");
-    svetlo1LampIsOn = false;
-  } else {
-    Serial.println("Failed to turn svetlo1 lamp OFF");
-  }
-}
-
-void toggleSvetlo1Lamp() {
-  if (!MQTTclient.connected()) {
-    Serial.println("MQTT not connected - cannot toggle svetlo1 lamp");
-    return;
-  }
-  
-  if (svetlo1LampIsOn) {
-    turnSvetlo1LampOff();
-  } else {
-    turnSvetlo1LampOn();
-  }
-}
-
-// LED control functions for svetlo2 lamp
-void setSvetlo2Brightness(int brightness) {
-  if (!svetlo2LampIsOn) {
-    turnSvetlo2LampOn();
-    delay(100);
-  }
-  
-  int haBrightness = map(brightness, 1, 100, 1, 255);
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(haBrightness) + "}";
-  
-  if (MQTTclient.publish(svetlo2_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Svetlo2 Lamp brightness set to: ");
-    Serial.print(brightness);
-    Serial.println("%");
-  } else {
-    Serial.println("Failed to set svetlo2 lamp brightness");
-  }
-}
-
-void turnSvetlo2LampOn() {
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(svetlo2CurrentBrightness, 1, 100, 1, 255)) + "}";
-  if (MQTTclient.publish(svetlo2_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Turned Svetlo2 LED lamp ON at ");
-    Serial.print(svetlo2CurrentBrightness);
-    Serial.println("% brightness");
-    svetlo2LampIsOn = true;
-  } else {
-    Serial.println("Failed to turn svetlo2 lamp ON");
-  }
-}
-
-void turnSvetlo2LampOff() {
-  String jsonPayload = "{\"state\":\"OFF\"}";
-  if (MQTTclient.publish(svetlo2_light_command_topic, jsonPayload.c_str())) {
-    Serial.println("Turned Svetlo2 LED lamp OFF");
-    svetlo2LampIsOn = false;
-  } else {
-    Serial.println("Failed to turn svetlo2 lamp OFF");
-  }
-}
-
-void toggleSvetlo2Lamp() {
-  if (!MQTTclient.connected()) {
-    Serial.println("MQTT not connected - cannot toggle svetlo2 lamp");
-    return;
-  }
-  
-  if (svetlo2LampIsOn) {
-    turnSvetlo2LampOff();
-  } else {
-    turnSvetlo2LampOn();
-  }
-}
-
-// LED control functions for svetlo3 lamp
-void setSvetlo3Brightness(int brightness) {
-  if (!svetlo3LampIsOn) {
-    turnSvetlo3LampOn();
-    delay(100);
-  }
-  
-  int haBrightness = map(brightness, 1, 100, 1, 255);
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(haBrightness) + "}";
-  
-  if (MQTTclient.publish(svetlo3_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Svetlo3 Lamp brightness set to: ");
-    Serial.print(brightness);
-    Serial.println("%");
-  } else {
-    Serial.println("Failed to set svetlo3 lamp brightness");
-  }
-}
-
-void turnSvetlo3LampOn() {
-  String jsonPayload = "{\"state\":\"ON\",\"brightness\":" + String(map(svetlo3CurrentBrightness, 1, 100, 1, 255)) + "}";
-  if (MQTTclient.publish(svetlo3_light_command_topic, jsonPayload.c_str())) {
-    Serial.print("Turned Svetlo3 LED lamp ON at ");
-    Serial.print(svetlo3CurrentBrightness);
-    Serial.println("% brightness");
-    svetlo3LampIsOn = true;
-  } else {
-    Serial.println("Failed to turn svetlo3 lamp ON");
-  }
-}
-
-void turnSvetlo3LampOff() {
-  String jsonPayload = "{\"state\":\"OFF\"}";
-  if (MQTTclient.publish(svetlo3_light_command_topic, jsonPayload.c_str())) {
-    Serial.println("Turned Svetlo3 LED lamp OFF");
-    svetlo3LampIsOn = false;
-  } else {
-    Serial.println("Failed to turn svetlo3 lamp OFF");
-  }
-}
-
-void toggleSvetlo3Lamp() {
-  if (!MQTTclient.connected()) {
-    Serial.println("MQTT not connected - cannot toggle svetlo3 lamp");
-    return;
-  }
-  
-  if (svetlo3LampIsOn) {
-    turnSvetlo3LampOff();
-  } else {
-    turnSvetlo3LampOn();
+    turnLampOn(lamp);
   }
 }
 
