@@ -232,6 +232,10 @@ void esp_panel_init()
   // setRotation(0);  // Set screen orientation if needed
   lcd->displayOn();
 
+  static uint16_t black_frame[screenWidth * screenHeight];
+  memset(black_frame, 0, sizeof(black_frame));
+  lcd->drawBitmap(0, 0, screenWidth, screenHeight, (uint8_t *)black_frame);
+
   screen_switch(true);
   backlight->setBrightness(100); // Set brightness
 }
